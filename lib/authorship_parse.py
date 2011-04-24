@@ -22,9 +22,15 @@ def file_to_year(a):
   if unparsed[0] == "0":
     prefix = "20"
   return int(prefix + unparsed[0:2])
+  
+def file_to_paper(a):
+  return (a.rsplit("/",1)[1]).split(".")[0]
 
 G = nx.Graph()
 num_papers = defaultdict(int)
+first_year = {}
+author_papers = defaultdict(list)
+paper_authors = defaultdict(list)
 
 # Build authorship graph for 1992-2003
 # Nodes are author names
@@ -36,6 +42,8 @@ for year in range(1992, 2004):
   for infile in glob.glob( os.path.join(path, '*.abs') ):
     #print "current file is: " + infile
     f = open(infile)
+    paper_name = file_to_paper(infile)
+    paper_year = file_to_year(infile)
     #print file_to_year(infile)
     for l in f:
       if re.match("Authors:", l):
@@ -43,9 +51,13 @@ for year in range(1992, 2004):
         authors = map(lambda s: s.strip(), re.split(r',| and ', sp[1])) # Separate by commas and "and", and strip whitespace
         authors = [elem for elem in authors if elem != ""] # Filter out empty strings
         
-        # Count papers for each author
+        # Count papers for each author and also the first year the author published
         for author in authors:
+          if not author in first_year:
+            first_year[author] = file_to_year(infile)
           num_papers[author] += 1
+          author_papers[author].append(paper_name) # Link authors to paper
+          paper_authors[paper_name].append(author) # Link paper to authors
         
         if len(authors) > 1: # Ignore papers with a single author
           for a1, a2 in itertools.combinations(authors, 2): # Pick all possible pairs of authors of a paper
@@ -53,14 +65,22 @@ for year in range(1992, 2004):
             #print "%s %s" % (a1,a2)
             if (a1,a2) in G.edges():
               G[a1][a2]['weight'] += 1
-              G[a1][a2]['years'].append(file_to_year(infile))
+              G[a1][a2]['years'].append(paper_year)
+              G[a1][a2]['papers'].append(paper_name)
             else:
-              G.add_edge(a1, a2, weight=1, years=[file_to_year(infile)])
-  nx.write_edgelist(G, "authorship_%d.edgelist" % year, comments='#', delimiter='|', data=True, encoding='utf-8')
+              G.add_edge(a1, a2, weight=1, years=[paper_year], papers=[paper_name])
+  nx.write_edgelist(G, "../data/parsed/authorship_%d.edgelist" % year, comments='#', delimiter='|', data=True, encoding='utf-8')
+  with open('../data/parsed/author_papers_%d.dat' % year, 'w') as f:
+    pickle.dump(author_papers, f)
+  with open('../data/parsed/paper_authors_%d.dat' % year, 'w') as f:
+    pickle.dump(paper_authors, f)
 
 # Write Graph to File
-nx.write_edgelist(G, "authorship.edgelist", comments='#', delimiter='|', data=True, encoding='utf-8')
+nx.write_edgelist(G, "../data/parsed/authorship.edgelist", comments='#', delimiter='|', data=True, encoding='utf-8')
 
 # Write Authorship Counts to File
-with open('authorship.count', 'w') as f:
+with open('../data/parsed/authorship.count', 'w') as f:
   pickle.dump(num_papers, f)
+  
+with open('../data/parsed/authorship.year', 'w') as f:
+  pickle.dump(first_year, f)

@@ -5,3 +5,5 @@
 *.png
 *.txt
 *.pyc
+*.year
+*.dat
