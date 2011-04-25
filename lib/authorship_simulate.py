@@ -10,18 +10,18 @@ from PlotFunctions import *
 import random
 
 # Variables that can be modified
-START_YEAR = 1999 # Year to start simulation from (i.e. start simulation from START_YEAR+1)
+START_YEAR = 1997 # Year to start simulation from (i.e. start simulation from START_YEAR+1)
 NEW_EDGES_PER_YEAR = 1350 # Number of new edges per year
 T = 6 # Years to simulate
-P = 0.3 # Probability of choosing a neighbor
-Q = 0.3 # Probability of choosing at random or closing a triangle, etc.
+P = 0.5 # Probability of choosing a neighbor
+Q = 0.5 # Probability of choosing at random or closing a triangle, etc.
 
 # # Simulate from the single-edge graph
-G = nx.Graph()
-G.add_edge("1","2", weight=1, years=[START_YEAR])
+# G = nx.Graph()
+# G.add_edge("1","2", weight=1, years=[START_YEAR])
 
-# # Simulate from START_YEAR
-# G = nx.read_edgelist("authorship_%d.edgelist" % START_YEAR, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
+# Simulate from START_YEAR
+G = nx.read_edgelist("authorship_%d.edgelist" % START_YEAR, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
 
 # Load year of first publication for each author
 with open("authorship.year", "r") as f:
@@ -34,11 +34,15 @@ with open("authorship.count", "r") as f:
 # based on num_papers, the # of papers he/she generates in his/her lifetime and
 # the author's "age"
 def num_new_nodes(year, author):
-  npapers = num_papers[author]
-  if npapers < 5:
+  if random.random() < 0.663:
+    return 1
+  else:
     return 0
-  fpaper = first_paper[author]
-  return int(year - fpaper)
+  # npapers = num_papers[author]
+  #   if npapers < 5:
+  #     return 0
+  #   fpaper = first_paper[author]
+  #   return int(year - fpaper)
   
 # TODO Should sample from the distribution of papers as in authorship.count
 def num_papers_dist():
@@ -71,6 +75,7 @@ for t in range(START_YEAR+1,START_YEAR+1+T):
     
       # Form an edge if target is set, don't form self-loops
       if target:
+        #print "Adding edge from %s to %s" % (node,target)
         if G.has_edge(node,target):
           G[node][target]['weight'] += 1
           G[node][target]['years'].append(t)

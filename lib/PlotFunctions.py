@@ -12,9 +12,15 @@ def plot_frequency_distribution(name, dict):
   print dcount_t
   plt.clf()
   plt.plot(dcount_t[0], dcount_t[1], 'ro', dcount_t[0], dcount_t[1], 'k') # Plot
-  plt.savefig("%s.png" % name)
+  plt.savefig("../data/graphs/%s.png" % name)
   
 def plot_xy(name, dicty):
   plt.clf()
   plt.plot(dicty.keys(), dicty.values(), 'k')
-  plt.savefig("%s.png" % name)
+  plt.savefig("../data/graphs/%s.png" % name)
+  
+def plot_xy_array(name, adicty):
+  plt.clf()
+  for dicty in adicty:
+    plt.plot(dicty.keys(), dicty.values(), '-')
+  plt.savefig("../data/graphs/%s.png" % name)
