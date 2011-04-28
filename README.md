@@ -34,6 +34,12 @@ random.txt
 
 /parsed
 -------
-* papers_citations_? is the dictionary of years in which a paper got cited
-* papers_cpapers_? is the list of papers that a specific paper cited
-* citations_? is the number of citations a specific paper got
+* papers_citations? is the dictionary of years in which a paper got cited
+* papers_cpapers? is the list of papers that a specific paper cited
+* citations? is the number of citations a specific paper got
+
+Prefixes
+--------
+* g = Gamma Distribution with a = 3, b = 2
+* dg = Gamma Distribution with a = degree of node, b = 2
+* drg = Gamma Distribution with a = sqrt(degree of node), b = 2

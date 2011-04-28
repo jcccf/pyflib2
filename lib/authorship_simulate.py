@@ -8,6 +8,8 @@ import pickle
 from collections import defaultdict
 from PlotFunctions import *
 import random
+from scipy.stats import gamma
+import math
 
 # Variables that can be modified
 START_YEAR = 1997 # Year to start simulation from (i.e. start simulation from START_YEAR+1)
@@ -15,6 +17,7 @@ NEW_EDGES_PER_YEAR = 1350 # Number of new edges per year
 T = 6 # Years to simulate
 P = 0.5 # Probability of choosing a neighbor
 Q = 0.5 # Probability of choosing at random or closing a triangle, etc.
+PREFIX = "p30k3"
 
 # # Simulate from the single-edge graph
 # G = nx.Graph()
@@ -30,14 +33,37 @@ with open("authorship.year", "r") as f:
 with open("authorship.count", "r") as f:
   num_papers = pickle.load(f)
 
-# TODO Should correctly decide how many papers an author "produces" each year
-# based on num_papers, the # of papers he/she generates in his/her lifetime and
-# the author's "age"
+# Decides how many new nodes get added each year specific to an author based
+# on how long it's been since his first paper
+# Choose from a gamma dist or constant activity level
+max_gam = max(gamma.pdf(range(1,12),3,scale=2))
 def num_new_nodes(year, author):
-  if random.random() < 0.663:
-    return 1
-  else:
-    return 0
+  # Gamma Distribution
+  # Decide probability p
+  # age = year - first_paper[author]
+  #ldegree = math.sqrt(G.degree(author))
+  #p = gamma.pdf(age,ldegree,scale=2) * 0.5 / max(gamma.pdf(range(1,12),ldegree,scale=2)) # a=3, b=2
+  #p = gamma.pdf(age,3,scale=2) * 0.5 / max_gam # a=3, b=2
+  p = 0.3 # p = 0.4
+  # Find number of nodes in previous year
+  n = 0
+  for nbr in G.neighbors(author):
+    n += G[node][nbr]['years'].count(year-1)
+  # Decide number of new nodes spawned
+  final = 0
+  for i in range(0,3*n): # k=2
+    if random.random() < p:
+      final += 1
+  #print year, author, first_paper[author], age, p, n, final
+  return final
+
+  # # Constant Activity Level
+  # if random.random() < 0.663:
+  #   return 1
+  # else:
+  #   return 0
+  
+  # # Something which I can't explain  
   # npapers = num_papers[author]
   #   if npapers < 5:
   #     return 0
@@ -98,7 +124,7 @@ for t in range(START_YEAR+1,START_YEAR+1+T):
       # Pick & connect to a random node
       G.add_edge(random.choice(bins), new_node, weight=1, years=[t])
   
-  nx.write_edgelist(G, "../data/simulations/sim_%d_%d_%f_%f.edgelist" % (START_YEAR, t, P, Q), comments='#', delimiter='|', data=True, encoding='utf-8')
+  nx.write_edgelist(G, "../data/simulations/%ssim_%d_%d_%f_%f.edgelist" % (PREFIX, START_YEAR, t, P, Q), comments='#', delimiter='|', data=True, encoding='utf-8')
       
 #print G.edges()
 

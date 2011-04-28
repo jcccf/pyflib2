@@ -14,6 +14,18 @@ def plot_frequency_distribution(name, dict):
   plt.plot(dcount_t[0], dcount_t[1], 'ro', dcount_t[0], dcount_t[1], 'k') # Plot
   plt.savefig("../data/graphs/%s.png" % name)
   
+def plot_frequency_distribution_array(name, adicty):
+  plt.clf()
+  for dict in adicty:
+    dlist = dict.values()
+    dcount = [(a, dlist.count(a)) for a in set(dlist)] # Count frequency of each degree
+    dcount = sorted(dcount, key=lambda x: x[0]) # Sort by number ascending
+    dcount_t = zip(*dcount) # Transpose
+    #print dcount_t
+    #plt.plot(dcount_t[0], dcount_t[1], '.', dcount_t[0], dcount_t[1], '-') # Plot
+    plt.plot(dcount_t[0], dcount_t[1], '-')
+    plt.savefig("../data/graphs/%s.png" % name)
+  
 def plot_xy(name, dicty):
   plt.clf()
   plt.plot(dicty.keys(), dicty.values(), 'k')
