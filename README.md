@@ -1,6 +1,9 @@
 Usage
 =====
 * Download and extract cit-HepTh.txt.gz and cit-HepTh-abstracts.tar.gz obtained from http://snap.stanford.edu/data/cit-HepTh.html into the /data folder
+* To generate all required files,
+* Run authorship_parse.py
+* Run citations_parse.py
 
 In the lib folder...
 ====================
