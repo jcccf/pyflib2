@@ -15,9 +15,9 @@ import math
 START_YEAR = 1997 # Year to start simulation from (i.e. start simulation from START_YEAR+1)
 NEW_EDGES_PER_YEAR = 1350 # Number of new edges per year
 T = 6 # Years to simulate
-P = 0.5 # Probability of choosing a neighbor
-Q = 0.5 # Probability of choosing at random or closing a triangle, etc.
-PREFIX = "p30k3"
+P = 0.4 # Probability of choosing a neighbor
+Q = 0.4 # Probability of choosing at random or closing a triangle, etc.
+PREFIX = "p38k2"
 
 # # Simulate from the single-edge graph
 # G = nx.Graph()
@@ -44,14 +44,14 @@ def num_new_nodes(year, author):
   #ldegree = math.sqrt(G.degree(author))
   #p = gamma.pdf(age,ldegree,scale=2) * 0.5 / max(gamma.pdf(range(1,12),ldegree,scale=2)) # a=3, b=2
   #p = gamma.pdf(age,3,scale=2) * 0.5 / max_gam # a=3, b=2
-  p = 0.3 # p = 0.4
+  p = 0.39 # p = 0.4
   # Find number of nodes in previous year
   n = 0
   for nbr in G.neighbors(author):
     n += G[node][nbr]['years'].count(year-1)
   # Decide number of new nodes spawned
   final = 0
-  for i in range(0,3*n): # k=2
+  for i in range(0,2*n): # k=2
     if random.random() < p:
       final += 1
   #print year, author, first_paper[author], age, p, n, final

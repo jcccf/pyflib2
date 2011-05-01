@@ -10,9 +10,9 @@ from PlotFunctions import *
 
 START_YEAR = 1997
 T = 6
-P = 0.5
-Q = 0.5
-PREFIX = "p40"
+P = 0.0
+Q = 0.0
+PREFIX = "base"
 
 path = "%s%d_%.2f_%.2f/" % (PREFIX,START_YEAR,P,Q)
 if not os.path.exists("../data/graphs/"+path):

@@ -10,12 +10,14 @@ from PlotFunctions import *
 
 START_YEAR = 1997
 T = 5 #6
-P = 0.5
-Q = 0.5
-PREFIX = "p30k3"
+P = 0.0
+Q = 0.0
+PREFIX = "base"
 year = 2002 #2003
 
 path = "%s%d_%.2f_%.2f/" % (PREFIX,START_YEAR,P,Q)
+if not os.path.exists("../data/graphs/"+path):
+  os.makedirs("../data/graphs/"+path)
 
 # Read in Authorship Graph
 #G = nx.read_edgelist("authorship.edgelist", comments='#', delimiter='|', data=True, encoding='utf-8')
@@ -102,7 +104,7 @@ plt.savefig("../data/graphs/%sactivity_distribution.png" % path)
 plt.clf()
 alevels = {}
 #for x,x2 in [[0,10], [10,20], [20,30], [30,40], [40,50], [50,60], [60,100], [100,1000]]:
-for x,x2 in [[0,10], [10,20], [20,30], [30,40], [40,50], [50,60], [60,100]]:
+for x,x2 in [[0,10], [10,20], [20,30], [30,40], [40,50], [50,60], [60,10000]]:
   years_cumulative = defaultdict(int)
   num_authors = 0
   for author,years in newauthors.iteritems():
@@ -123,7 +125,7 @@ for x,x2 in [[0,10], [10,20], [20,30], [30,40], [40,50], [50,60], [60,100]]:
 alevels2 = {}
 G2 = nx.read_edgelist("authorship_2002.edgelist", comments='#', delimiter='|', data=True, encoding='utf-8')
 authors, newauthors = get_activity_levels(G2)
-for x,x2 in [[0,10], [10,20], [20,30], [30,40], [40,50], [50,60], [60,100]]:
+for x,x2 in [[0,10], [10,20], [20,30], [30,40], [40,50], [50,60], [60,10000]]:
   years_cumulative = defaultdict(int)
   num_authors = 0
   for author,years in newauthors.iteritems():
