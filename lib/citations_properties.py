@@ -21,6 +21,9 @@ plt.clf()
 plt.hist(citation_dist.keys(), 1000, weights=citation_dist.values(), normed=False, facecolor='green', align='mid', alpha=0.75, log=False)
 plt.savefig("../data/graphs/citation_distribution.png")
 
+# Print out average number of citations per paper
+#print float(sum(num_citations.values())) / len(num_citations.keys())
+
 papers_citations_normalized = {}
 for paper, years in papers_citations.iteritems():
   y0 = sorted(years)[0]
