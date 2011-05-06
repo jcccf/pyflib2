@@ -12,17 +12,18 @@ from PlotFunctions import *
 clustering_coefficients = {}
 connected_components = {}
 diameters = {}
+avg_shortestpath = {}
 avg_degrees = {}
 degrees = {}
 avg_collablength = {}
 collablength = {}
-for year in range(1992, 2004):
+for year in range(1992, 2003):
   print "For year %d..." % year
-  G = nx.read_edgelist("authorship_%d.edgelist" % year, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
+  G = nx.read_edgelist("../data/parsed/authorship_%d.edgelist" % year, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
   
   print "\tCalculating and Plotting Degree Distribution..."
   degrees[year] = nx.degree(G)
-  plot_frequency_distribution("degree_distribution_%d" % year, degrees[year], xlabel='Degree', ylabel='Number of Authors')
+  plot_frequency_distribution("degree_distribution_%d" % year, degrees[year], xlabel='Degree', ylabel='Number of Authors', linetype='o')
   
   print "\tCalculating Average Clustering Coefficient..."
   clustering_coefficients[year] = nx.average_clustering(G)
@@ -34,11 +35,11 @@ for year in range(1992, 2004):
   print "\tCalculating Diameter of Largest Connected Component..."
   diameters[year] = nx.diameter(largest_cc_graph)
   
+  print "\tCalculating Average Shortest Path Length of Largest Connected Component"
+  avg_shortestpath[year] = nx.average_shortest_path_length(largest_cc_graph)
+  
   print "\tCalculating Average Degree..."
-  degree_sum = 0
-  for node, degree in G.degree_iter():
-    degree_sum += degree
-  avg_degrees[year] = float(degree_sum) / float(len(G))
+  avg_degrees[year] = float(sum(degrees[year].values())) / len(degrees[year])
   
   print "\tCalculating and Plotting Length of Collaboration Distribution"
   lengths = defaultdict(int)
@@ -68,6 +69,9 @@ plot_xy("diameter", diameters, ylabel='Diameter of Largest Connected Component')
 print "Plotting Average Degree..."
 plot_xy("average_degree", avg_degrees, ylabel='Average Degree')
 
+print "Plotting Average Shortest Path Length..."
+plot_xy("average_shortestpath", avg_shortestpath, ylabel='Avg Shortest Path in Largest Connected Component')
+
 print "Plotting Average Collab Length..."
 plot_xy("average_collablength", avg_collablength, ylabel='Average Length of Collaboration')
 
@@ -77,6 +81,7 @@ data = {}
 data['clustering_coefficients'] = clustering_coefficients
 data['connected_components'] = connected_components
 data['diameters'] = diameters
+data['avg_shortestpath'] = avg_shortestpath
 data['average_degrees'] = avg_degrees
 data['degrees'] = degrees
 data['collablength'] = collablength

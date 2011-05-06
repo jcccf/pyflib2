@@ -46,8 +46,9 @@ for year in range(1992, 2004):
     paper_year = file_to_year(infile)
     #print file_to_year(infile)
     for l in f:
-      if re.match("Authors:", l):
+      if re.match("Authors:", l) or re.match("Author:", l):
         sp = l.split(":")
+        sp[1] = re.sub(r'\([a-zA-Z0-9, ]+\)','',sp[1])
         authors = map(lambda s: s.strip(), re.split(r',| and ', sp[1])) # Separate by commas and "and", and strip whitespace
         authors = [elem for elem in authors if elem != ""] # Filter out empty strings
         

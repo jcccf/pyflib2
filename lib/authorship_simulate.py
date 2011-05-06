@@ -13,7 +13,7 @@ import math
 
 # Variables that can be modified
 START_YEAR = 1997 # Year to start simulation from (i.e. start simulation from START_YEAR+1)
-NEW_EDGES_PER_YEAR = 1350 # Number of new edges per year
+NEW_EDGES_PER_YEAR = 1370 # Number of new edges per year
 T = 6 # Years to simulate
 P = 0.4 # Probability of choosing a neighbor
 Q = 0.4 # Probability of choosing at random or closing a triangle, etc.
@@ -24,13 +24,13 @@ PREFIX = "p38k2"
 # G.add_edge("1","2", weight=1, years=[START_YEAR])
 
 # Simulate from START_YEAR
-G = nx.read_edgelist("authorship_%d.edgelist" % START_YEAR, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
+G = nx.read_edgelist("../data/parsed/authorship_%d.edgelist" % START_YEAR, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
 
 # Load year of first publication for each author
-with open("authorship.year", "r") as f:
+with open("../data/parsed/authorship.year", "r") as f:
   first_paper = pickle.load(f)
 # Load # of papers each author produces in his/her lifetime
-with open("authorship.count", "r") as f:
+with open("../data/parsed/authorship.count", "r") as f:
   num_papers = pickle.load(f)
 
 # Decides how many new nodes get added each year specific to an author based
@@ -58,7 +58,7 @@ def num_new_nodes(year, author):
   return final
 
   # # Constant Activity Level
-  # if random.random() < 0.663:
+  # if random.random() < 0.648:
   #   return 1
   # else:
   #   return 0
@@ -115,6 +115,20 @@ for t in range(START_YEAR+1,START_YEAR+1+T):
     bins = []
     for node,degree in G.degree_iter():
       bins += [node] * degree
+
+    # # Use special pref attachment
+    # node_degrees = {}
+    # for n,d in G.degree_iter():
+    #   node_degrees[n] = d
+    # degree_sum = sum(node_degrees.values())
+    # 
+    # for i in range(0,NEW_EDGES_PER_YEAR):
+    #   new_node = "N"+str(t)+"_"+str(i)
+    #   for n,d in node_degrees.iteritems():
+    #     if random.random < float(d)/degree_sum:
+    #       first_paper[new_node] = t
+    #       num_papers[new_node] = num_papers_dist()
+    #       G.add_edge(n, new_node, weight=1, years=[t])
 
     # Add new nodes and connect them to existing nodes using preferential attachment
     for i in range(0,NEW_EDGES_PER_YEAR):

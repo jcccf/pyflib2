@@ -13,18 +13,18 @@ import math
 
 # Variables that can be modified
 START_YEAR = 1997 # Year to start simulation from (i.e. start simulation from START_YEAR+1)
-NEW_EDGES_PER_YEAR = 1350 # Number of new edges per year
+NEW_EDGES_PER_YEAR = 1370 # Number of new edges per year
 T = 6 # Years to simulate
 P = 0.0 # Probability of choosing a neighbor
 Q = 0.0 # Probability of choosing at random or closing a triangle, etc.
 PREFIX = "base"
 
 # Simulate from START_YEAR
-G = nx.read_edgelist("authorship_%d.edgelist" % START_YEAR, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
+G = nx.read_edgelist("../data/parsed/authorship_%d.edgelist" % START_YEAR, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
 
 def num_new_nodes(year, author):
   # Constant Activity Level
-  if random.random() < 0.663:
+  if random.random() < 0.648:
     return 1
   else:
     return 0

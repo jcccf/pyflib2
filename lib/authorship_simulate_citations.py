@@ -13,11 +13,11 @@ import math
 
 # Variables that can be modified
 START_YEAR = 1997 # Year to start simulation from (i.e. start simulation from START_YEAR+1)
-NEW_EDGES_PER_YEAR = 1350 # Number of new edges per year
+NEW_EDGES_PER_YEAR = 1370 # Number of new edges per year
 T = 6 # Years to simulate
 P = 0.4 # Probability of choosing a neighbor
 Q = 0.4 # Probability of choosing at random or closing a triangle, etc.
-PREFIX = "cb"
+PREFIX = "ca"
 
 # # Simulate from the single-edge graph
 # G = nx.Graph()
@@ -27,16 +27,16 @@ PREFIX = "cb"
 G = nx.read_edgelist("../data/parsed/authorship_%d.edgelist" % START_YEAR, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
 
 # Load year of first publication for each author
-with open("authorship.year", "r") as f:
+with open("../data/parsed/authorship.year", "r") as f:
   first_paper = pickle.load(f)
 # Load # of papers each author produces in his/her lifetime
-with open("authorship.count", "r") as f:
+with open("../data/parsed/authorship.count", "r") as f:
   num_papers = pickle.load(f)
 
 max_gam = max(gamma.pdf(range(1,12),3,scale=2))
 def num_new_nodes(year, author):
   # Constant Activity Level
-  if random.random() < 0.663:
+  if random.random() < 0.648:
     return 1
   else:
     return 0
@@ -69,9 +69,9 @@ for t in range(START_YEAR+1,START_YEAR+1+T):
         bins = []
         for nbr in G.neighbors(node):
           #print node,nbr,G[node][nbr]
-          #mult = max([num_citations[p] for p in G[node][nbr]['papers']])
-          clist = [num_citations[p] for p in G[node][nbr]['papers']]
-          mult = int(round(float(sum(clist)) / len(clist)))
+          mult = max([num_citations[p] for p in G[node][nbr]['papers']])
+          #clist = [num_citations[p] for p in G[node][nbr]['papers']]
+          #mult = int(round(float(sum(clist)) / len(clist)))
           bins += [nbr] * mult
         if len(bins) == 0:
           bins = G.neighbors(node)

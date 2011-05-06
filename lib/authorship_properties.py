@@ -12,7 +12,7 @@ path="real/"
 
 # Read in Authorship Graph
 #G = nx.read_edgelist("authorship.edgelist", comments='#', delimiter='|', data=True, encoding='utf-8')
-G = nx.read_edgelist("authorship_2002.edgelist", comments='#', delimiter='|', data=True, encoding='utf-8')
+G = nx.read_edgelist("../data/parsed/authorship_2002.edgelist", comments='#', delimiter='|', data=True, encoding='utf-8')
 
 # Get activity levels
 # Get the years of collaboration for each person. Sort by year.
@@ -33,12 +33,12 @@ def get_activity_levels(G):
 authors, newauthors = get_activity_levels(G)
 
 # Get degree distribution
-plot_frequency_distribution(path+"degree_distribution", nx.degree(G), ylabel="Number of Authors", xlabel="Degree")
+plot_frequency_distribution(path+"degree_distribution", nx.degree(G), ylabel="Number of Authors", xlabel="Degree", linetype='o')
 
 # Get paper distribution
-with open("authorship.count", "r") as f:
+with open("../data/parsed/authorship.count", "r") as f:
   num_papers = pickle.load(f)
-plot_frequency_distribution(path+"papers_per_author", num_papers, ylabel='Number of Authors', xlabel='Number of Papers')
+plot_frequency_distribution(path+"papers_per_author", num_papers, ylabel='Number of Authors', xlabel='Number of Papers', linetype='o')
 
 # Plot number of new authors a year
 years_author = defaultdict(int)
@@ -58,14 +58,14 @@ for _,years in authors.iteritems():
     activities[len(years)] += 1
 plot_xy(path+"activity_distribution_log", activities, ylabel='Number of Authors', xlabel='Number of Collaborations', log=True)
 
-# # Calculate average activity level
-# collaborations, active_years = 0, 0
-# for _,years in authors.iteritems():
-#   # Count # of active years
-#   first_year = int(sorted(years)[0])
-#   active_years += 2003 - first_year + 1
-#   collaborations += len(years)
-# print float(collaborations) / active_years
+# Calculate average activity level
+collaborations, active_years = 0, 0
+for _,years in authors.iteritems():
+  # Count # of active years
+  first_year = int(sorted(years)[0])
+  active_years += 2003 - first_year + 1
+  collaborations += len(years)
+print float(collaborations) / active_years
 
 # Plot average # of collaborations (cumulative)
 plt.clf()
@@ -206,6 +206,45 @@ for paper,authors in paper_authors.iteritems():
 for numa,count in num_authors.iteritems():
   cum_citations[numa] /= count
 plot_xy(path+"citations_to_numauthors", cum_citations, xlabel='Number of Coauthors', ylabel='Average Number of Citations')
+
+# Plot diff in highest cited and lowest cited author
+# Num of citations is picked from the previous year. Ex. for a paper published in 1999, look at the # of citations received by
+# authors only up to 1998, to discount the effect of citations toward that paper itself, and to look at existing "street cred"
+# of the authors
+# Num Citations
+with open("../data/parsed/citations_2002.count","r") as f:
+  papers_citations = pickle.load(f)
+with open("../data/parsed/paper_authors_2002.dat","r") as f:
+  paper_authors = pickle.load(f)
+author_numcitations = {}
+for i in range(1992,2002):
+  with open("../data/parsed/author_numcitations_%d.dat" % i, "r") as f:
+    author_numcitations[i] = pickle.load(f)
+# For each paper, check if it has more than X citations
+paperz,i = [],1
+plt.clf()
+for paper,citations in papers_citations.iteritems():
+  paper_year = to_year(paper) - 1
+  if citations > 1000 and paper_year >= 1992:
+    print paper,citations
+    minCitations, maxCitations = 999999, -1
+    for author in paper_authors[paper]:
+      print "\t"+author
+      if author_numcitations[paper_year][author] < minCitations:
+        minCitations = author_numcitations[paper_year][author]
+      if author_numcitations[paper_year][author] > maxCitations:
+        maxCitations = author_numcitations[paper_year][author]
+    papr = {minCitations: i, maxCitations: i}
+    i += 1
+    plt.semilogy([i,i], [minCitations,maxCitations], '-', [i,i], [minCitations,maxCitations], 'ko', markersize=2.0, mew=0.0)
+    paperz.append(papr)
+print paperz
+plt.gca().axes.get_xaxis().set_visible(False)
+plt.ylabel("Number of Citations")
+plt.title("Difference in citations received by coauthors in papers (> 1000 citations)")
+plt.savefig("../data/graphs/real/paper_minmaxcitations.png")  
+#plot_xy_array(path+"paper_minmaxcitations", paperz)
+    
 
 # # Iterating through edges
 # for n,nbrs in G.adjacency_iter():

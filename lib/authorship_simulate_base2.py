@@ -13,18 +13,18 @@ import math
 
 # Variables that can be modified
 START_YEAR = 1997 # Year to start simulation from (i.e. start simulation from START_YEAR+1)
-NEW_EDGES_PER_YEAR = 1350 # Number of new edges per year
+NEW_EDGES_PER_YEAR = 1370 # Number of new edges per year
 T = 6 # Years to simulate
 P = 0.0 # Probability of choosing a neighbor
 Q = 0.0 # Probability of choosing at random or closing a triangle, etc.
 PREFIX = "base2"
 
 # Simulate from START_YEAR
-G = nx.read_edgelist("authorship_%d.edgelist" % START_YEAR, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
+G = nx.read_edgelist("../data/parsed/authorship_%d.edgelist" % START_YEAR, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
 
 def num_new_nodes(year, author):
   # Constant Activity Level
-  if random.random() < 0.663:
+  if random.random() < 0.648:
     return 1
   else:
     return 0
@@ -53,7 +53,7 @@ for t in range(START_YEAR+1,START_YEAR+1+T):
   for node,degree in G.degree_iter():
     nd_dict.pop(node)
     for n2, d2 in nd_dict.iteritems():
-      p = degree * d2 * 2 * 0.663 / cumulative_sum 
+      p = degree * d2 * 2 * 0.648 / cumulative_sum 
       if random.random() < p:
         if G.has_edge(node,n2):
           G[node][n2]['weight'] += 1
@@ -68,12 +68,24 @@ for t in range(START_YEAR+1,START_YEAR+1+T):
     bins = []
     for node,degree in G.degree_iter():
       bins += [node] * degree
-      
+    
     # Add new nodes and connect them to existing nodes using preferential attachment
     for i in range(0,NEW_EDGES_PER_YEAR):
       new_node = "N"+str(t)+"_"+str(i)
       # Pick & connect to a random node
       G.add_edge(random.choice(bins), new_node, weight=1, years=[t])
+    
+    # node_degrees = {}
+    # for n,d in G.degree_iter():
+    #   node_degrees[n] = d
+    # degree_sum = sum(node_degrees.values())
+    # 
+    # for i in range(0,NEW_EDGES_PER_YEAR):
+    #   new_node = "N"+str(t)+"_"+str(i)
+    #   for n,d in node_degrees.iteritems():
+    #     if random.random < float(d)/degree_sum:
+    #       G.add_edge(n, new_node, weight=1, years=[t])
+    
   
   nx.write_edgelist(G, "../data/simulations/%ssim_%d_%d_%f_%f.edgelist" % (PREFIX, START_YEAR, t, P, Q), comments='#', delimiter='|', data=True, encoding='utf-8')
       

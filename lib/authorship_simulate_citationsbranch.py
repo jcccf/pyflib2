@@ -14,10 +14,10 @@ import math
 # Variables that can be modified
 START_YEAR = 1997 # Year to start simulation from (i.e. start simulation from START_YEAR+1)
 NEW_EDGES_PER_YEAR = 1370 # Number of new edges per year
-T = 6 # Years to simulate
+T = 5 # Years to simulate
 P = 0.4 # Probability of choosing a neighbor
 Q = 0.4 # Probability of choosing at random or closing a triangle, etc.
-PREFIX = "cd"
+PREFIX = "cab"
 
 # # Simulate from the single-edge graph
 # G = nx.Graph()
@@ -27,27 +27,26 @@ PREFIX = "cd"
 G = nx.read_edgelist("../data/parsed/authorship_%d.edgelist" % START_YEAR, create_using=nx.Graph(), comments='#', delimiter='|', data=True, encoding='utf-8')
 
 # Load year of first publication for each author
-with open("../data/parsed/authorship.year", "r") as f:
+with open("authorship.year", "r") as f:
   first_paper = pickle.load(f)
-
 # Load # of papers each author produces in his/her lifetime
-with open("../data/parsed/authorship.count", "r") as f:
+with open("authorship.count", "r") as f:
   num_papers = pickle.load(f)
 
-# Load paper => authors
-with open("../data/parsed/paper_authors_2003.dat") as f:
-  papers_authors = pickle.load(f)
-  
-# Load paper => cited papers
-with open("../data/parsed/papers_cpapers_2003.dat") as f:
-  papers_cpapers = pickle.load(f)
-
+max_gam = max(gamma.pdf(range(1,12),3,scale=2))
 def num_new_nodes(year, author):
-  # Constant Activity Level
-  if random.random() < 0.648:
-    return 1
-  else:
-    return 0
+  p = 0.39 # p = 0.4
+  # Find number of nodes in previous year
+  n = 0
+  for nbr in G.neighbors(author):
+    n += G[node][nbr]['years'].count(year-1)
+  # Decide number of new nodes spawned
+  final = 0
+  for i in range(0,2*n): # k=2
+    if random.random() < p:
+      final += 1
+  #print year, author, first_paper[author], age, p, n, final
+  return final
 
 def num_papers_dist():
   return 4
@@ -64,15 +63,6 @@ for t in range(START_YEAR+1,START_YEAR+1+T):
     num_citations = pickle.load(f)
   num_citations.update(new_num_citations)
   
-  # Load authors => papers
-  with open("../data/parsed/author_papers_%d.dat" % t) as f:
-    authors_papers = pickle.load(f)
-    
-  # Load authors => num citations
-  with open("../data/parsed/author_numcitations_%d.dat" % t, "r") as f:
-    author_numcitations = pickle.load(f)
-
-  
   # Create new edges for existing nodes
   print "\t for existing nodes"
   for node in G.nodes_iter():
@@ -82,26 +72,16 @@ for t in range(START_YEAR+1,START_YEAR+1+T):
       rand = random.random()
       target = None
       if rand < P:
-        # Pick an author out of those of papers which you cite in your papers
-        # proportional to the number of papers they wrote
+        # Pick a node proportional to edge weight
         bins = []
-        cited_authors = {}
-        for paper in authors_papers[node]:
-          #print paper
-          for cpaper in papers_cpapers[paper]:
-            #print "\t"+cpaper
-            for auth in papers_authors[cpaper]:
-              #print "\t\t"+auth
-              cited_authors[auth] = 1
-        for auth in cited_authors.keys():
-          #bins += [auth] * len(authors_papers[auth])
-          bins += [auth] * author_numcitations[auth]
-        
-        # Do preferential attachment if no existing authors cited (wow, really?)
+        for nbr in G.neighbors(node):
+          #print node,nbr,G[node][nbr]
+          mult = max([num_citations[p] for p in G[node][nbr]['papers']])
+          #clist = [num_citations[p] for p in G[node][nbr]['papers']]
+          #mult = int(round(float(sum(clist)) / len(clist)))
+          bins += [nbr] * mult
         if len(bins) == 0:
-          for node,degree in G.degree_iter():
-            bins += [node] * degree
-            
+          bins = G.neighbors(node)
         target = random.choice(bins)
       elif rand < P + Q:
         # Degree-random
